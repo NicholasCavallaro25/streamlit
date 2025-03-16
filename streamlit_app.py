@@ -47,7 +47,7 @@ import streamlit as st
 
 subcategory_multiselect = st.multiselect(
     "Select a Sub-Category",
-    sub_categories
+    Sub_Category
 )
 
 
