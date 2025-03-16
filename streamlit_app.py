@@ -47,7 +47,7 @@ sub_categories = df[df['Category'] == category]['Sub_Category'].unique()
 selected_sub_categories = st.multiselect(
     "Select Sub-Categories",
     sub_categories,
-    sub_categories[:2]  # Default selects first two items
+    sub_categories
 )
 
 st.write("### (3) show a line chart of sales for the selected items in (2)")
