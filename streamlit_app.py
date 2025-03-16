@@ -43,12 +43,19 @@ option = st.selectbox(
 
 st.write("### (2) add a multi-select for Sub_Category *in the selected Category (1)* (https://docs.streamlit.io/library/api-reference/widgets/st.multiselect)")
 
-import streamlit as st
+if 'Category' in df.columns and 'Sub_Category' in df.columns:
+    # Select a Category
+    category = st.selectbox("Select a Category", df['Category'].unique())
 
-subcategory_multiselect = st.multiselect(
-    "Select a Sub-Category",
-    Sub_Category
-)
+    # Filter Sub_Categories based on selected Category
+    sub_categories = df[df['Category'] == category]['Sub_Category'].unique()
+
+    # Multi-select for Sub_Category
+    selected_sub_categories = st.multiselect(
+        "Select Sub-Categories",
+        sub_categories,
+        sub_categories[:2]  # Default selects first two items
+    )
 
 
 st.write("### (3) show a line chart of sales for the selected items in (2)")
