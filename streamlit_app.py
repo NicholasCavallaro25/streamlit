@@ -29,6 +29,34 @@ st.dataframe(sales_by_month)
 # Here the grouped months are the index and automatically used for the x axis
 st.line_chart(sales_by_month, y="Sales")
 
+# (1) Dropdown for Category Selection
+category = st.selectbox("Select a Category", df["Category"].unique())
+
+# (2) Multi-Select for Sub-Category
+filtered_df = df[df["Category"] == category]
+sub_categories = st.multiselect("Select Sub-Categories", filtered_df["Sub-Category"].unique())
+
+if sub_categories:
+    # (3) Show a line chart of sales for the selected sub-categories
+    sub_df = filtered_df[filtered_df["Sub-Category"].isin(sub_categories)]
+    sales_by_month_sub = sub_df.groupby([pd.Grouper(freq='M'), "Sub-Category"])["Sales"].sum().unstack()
+    
+    st.line_chart(sales_by_month_sub)
+
+    # (4) Metrics for selected items
+    total_sales = sub_df["Sales"].sum()
+    total_profit = sub_df["Profit"].sum()
+    profit_margin = (total_profit / total_sales) * 100 if total_sales > 0 else 0
+
+    st.metric(label="Total Sales", value=f"${total_sales:,.2f}")
+    st.metric(label="Total Profit", value=f"${total_profit:,.2f}")
+    
+    # (5) Delta for Profit Margin (compared to overall average)
+    overall_profit_margin = (df["Profit"].sum() / df["Sales"].sum()) * 100
+    delta = profit_margin - overall_profit_margin
+    
+    st.metric(label="Profit Margin (%)", value=f"{profit_margin:.2f}%", delta=f"{delta:.2f}%")
+
 st.write("## Your additions")
 st.write("### (1) add a drop down for Category (https://docs.streamlit.io/library/api-reference/widgets/st.selectbox)")
 st.write("### (2) add a multi-select for Sub_Category *in the selected Category (1)* (https://docs.streamlit.io/library/api-reference/widgets/st.multiselect)")
