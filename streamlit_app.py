@@ -29,6 +29,43 @@ st.dataframe(sales_by_month)
 # Here the grouped months are the index and automatically used for the x axis
 st.line_chart(sales_by_month, y="Sales")
 
+
+
+import streamlit as st
+import pandas as pd
+
+st.title("Superstore Sales Dashboard")
+
+# Load dataset
+@st.cache_data
+def load_data():
+    df = pd.read_csv("Superstore_Sales_utf8.csv", parse_dates=['Order_Date'])
+    df.columns = df.columns.str.strip()  # Fix column name issues
+    return df
+
+df = load_data()
+
+# Check column names
+st.write("### Column Names in DataFrame")
+st.write(df.columns)
+
+# Check data preview
+st.write("### Data Preview")
+st.dataframe(df.head())
+
+# Dropdown for category selection
+category = st.selectbox("Select a Category", df["Category"].unique())
+
+# Ensure sub-category selection only works if data exists
+filtered_df = df[df["Category"] == category]
+
+if not filtered_df.empty:
+    sub_categories = st.multiselect("Select Sub-Categories", filtered_df["Sub-Category"].unique())
+else:
+    st.warning("No data found for this category. Please choose another.")
+
+
+
 # (1) Dropdown for Category Selection
 category = st.selectbox("Select a Category", df["Category"].unique())
 
