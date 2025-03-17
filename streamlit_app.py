@@ -29,8 +29,7 @@ st.dataframe(sales_by_month)
 # Here the grouped months are the index and automatically used for the x axis
 st.line_chart(sales_by_month, y="Sales")
 
-st.write("## Your additions")
-st.write("### (1) add a drop down for Category (https://docs.streamlit.io/library/api-reference/widgets/st.selectbox)")
+
 
 import streamlit as st
 option = st.selectbox(
@@ -40,7 +39,7 @@ option = st.selectbox(
     placeholder="Select contact method...",
 )
 
-st.write("### (2) add a multi-select for Sub_Category *in the selected Category (1)* (https://docs.streamlit.io/library/api-reference/widgets/st.multiselect)")
+
 
 category = st.selectbox("Select a Category", df['Category'].unique())
 sub_categories = df[df['Category'] == category]['Sub_Category'].unique()
