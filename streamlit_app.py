@@ -41,18 +41,18 @@ selected_sub_categories = st.multiselect(
 
 st.write("### (3) show a line chart of sales for the selected items in (2)")
 
- if selected_sub_categories:
-        filtered_df = df[(df['Category'] == category) & (df['Sub_Category'].isin(selected_sub_categories))]
+if selected_sub_categories:
+    filtered_df = df[(df['Category'] == category) & (df['Sub_Category'].isin(selected_sub_categories))]
 
-        # Aggregate sales by date
-        sales_trend = filtered_df.groupby('Order Date')['Sales'].sum().reset_index()
+    # Aggregate sales by date
+    sales_trend = filtered_df.groupby('Order Date')['Sales'].sum().reset_index()
 
-        # Show the filtered data
-        st.write("### Filtered Data", filtered_df)
+    # Show the filtered data
+    st.write("### Filtered Data", filtered_df)
 
-        # Show the line chart
-        st.write("### Sales Trend Over Time")
-        st.line_chart(sales_trend.set_index('Order Date'))
+    # Show the line chart
+    st.write("### Sales Trend Over Time")
+    st.line_chart(sales_trend.set_index('Order Date'))
 
 st.write("### (4) show three metrics (https://docs.streamlit.io/library/api-reference/data/st.metric) for the selected items in (2): total sales, total profit, and overall profit margin (%)")
 st.write("### (5) use the delta option in the overall profit margin metric to show the difference between the overall average profit margin (all products across all categories)")
