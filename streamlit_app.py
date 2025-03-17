@@ -25,11 +25,11 @@ st.line_chart(sales_by_month, y="Sales")
 
 st.write("## Your additions")
 
-# (1) Dropdown for Category Selection
+# (1) 
 categories = df["Category"].unique().tolist()
 selected_category = st.selectbox("Select a Category:", categories)
 
-# (2) Multi-select for Sub-Category in the selected Category
+# (2)
 filtered_df = df[df["Category"] == selected_category]
 sub_categories = filtered_df["Sub_Category"].unique().tolist()
 selected_sub_categories = st.multiselect("Select Sub-Categories:", sub_categories, default=sub_categories[:2])
@@ -37,17 +37,17 @@ selected_sub_categories = st.multiselect("Select Sub-Categories:", sub_categorie
 # Filter data based on selected sub-categories
 filtered_data = filtered_df[filtered_df["Sub_Category"].isin(selected_sub_categories)]
 
-# (3) Line chart of sales for selected items
+# (3) 
 sales_by_month_filtered = filtered_data.groupby(pd.Grouper(freq='M')).sum()
 st.line_chart(sales_by_month_filtered, y="Sales")
 
-# (4) Show three metrics: Total Sales, Total Profit, Profit Margin
+# (4) 
 if not filtered_data.empty:
     total_sales = filtered_data["Sales"].sum()
     total_profit = filtered_data["Profit"].sum()
     profit_margin = (total_profit / total_sales) * 100 if total_sales != 0 else 0
 
-    # (5) Delta option: Difference in overall profit margin
+    # (5) 
     overall_profit_margin = (df["Profit"].sum() / df["Sales"].sum()) * 100
     profit_margin_delta = profit_margin - overall_profit_margin
 
