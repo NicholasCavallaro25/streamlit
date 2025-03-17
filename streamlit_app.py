@@ -41,7 +41,7 @@ option = st.selectbox(
 
 
 
-# category = st.selectbox("Select a Category", df['Category'].unique())
+category = st.selectbox("Select a Category", df['Category'].unique())
 sub_categories = df[df['Category'] == category]['Sub_Category'].unique()
 selected_sub_categories = st.multiselect(
     "Select Sub-Categories",
