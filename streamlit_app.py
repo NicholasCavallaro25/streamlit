@@ -42,34 +42,9 @@ selected_sub_categories = st.multiselect(
 st.write("### (3) show a line chart of sales for the selected items in (2)")
 st.write("### (4) show three metrics (https://docs.streamlit.io/library/api-reference/data/st.metric) for the selected items in (2): total sales, total profit, and overall profit margin (%)")
 
-if selected_sub_categories:
-        filtered_df = df[(df['Category'] == category) & (df['Sub_Category'].isin(selected_sub_categories))]
+import streamlit as st
 
-        # Check if 'Order Date' has valid values after conversion
-        if filtered_df['Order Date'].isna().all():
-            st.error("All 'Order Date' values are invalid. Please check the dataset format.")
-        else:
-            # Drop rows with NaT values in 'Order Date'
-            filtered_df = filtered_df.dropna(subset=['Order Date'])
+col1, col2, col3 = st.columns(3)
+col1.metric("Total Sales", "83829.32")
 
-            # Aggregate sales by date
-            sales_trend = filtered_df.groupby('Order Date')['Sales'].sum().reset_index()
-
-            # Show the filtered data
-            st.write("### Filtered Data", filtered_df)
-
-            # Show the line chart
-            st.write("### Sales Trend Over Time")
-            st.line_chart(sales_trend.set_index('Order Date'))
-
-            # ---- METRICS ----
-            total_sales = filtered_df['Sales'].sum()
-            total_profit = filtered_df['Profit'].sum()
-            profit_margin = (total_profit / total_sales * 100) if total_sales != 0 else 0
-
-            # Display Metrics
-            col1, col2, col3 = st.columns(3)
-            col1.metric("Total Sales ($)", f"${total_sales:,.2f}")
-            col2.metric("Total Profit ($)", f"${total_profit:,.2f}")
-            col3.metric("Profit Margin (%)", f"{profit_margin:.2f}%")
 st.write("### (5) use the delta option in the overall profit margin metric to show the difference between the overall average profit margin (all products across all categories)")
