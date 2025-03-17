@@ -30,7 +30,7 @@ st.dataframe(sales_by_month)
 st.line_chart(sales_by_month, y="Sales")
 
 
-
+'''
 import streamlit as st
 option = st.selectbox(
     "Select a Category",
@@ -38,7 +38,7 @@ option = st.selectbox(
     index=None,
     placeholder="Select contact method...",
 )
-
+'''
 
 
 category = st.selectbox("Select a Category", df['Category'].unique())
