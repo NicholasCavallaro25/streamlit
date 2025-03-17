@@ -9,58 +9,52 @@ st.write("### Input Data and Examples")
 df = pd.read_csv("Superstore_Sales_utf8.csv", parse_dates=True)
 st.dataframe(df)
 
-# This bar chart will not have solid bars--but lines--because the detail data is being graphed independently
+# Bar charts for category sales
 st.bar_chart(df, x="Category", y="Sales")
-
-# Now let's do the same graph where we do the aggregation first in Pandas... (this results in a chart with solid bars)
 st.dataframe(df.groupby("Category").sum())
-# Using as_index=False here preserves the Category as a column.  If we exclude that, Category would become the datafram index and we would need to use x=None to tell bar_chart to use the index
 st.bar_chart(df.groupby("Category", as_index=False).sum(), x="Category", y="Sales", color="#04f")
 
-# Aggregating by time
-# Here we ensure Order_Date is in datetime format, then set is as an index to our dataframe
+# Convert Order_Date to datetime and set index
 df["Order_Date"] = pd.to_datetime(df["Order_Date"])
 df.set_index('Order_Date', inplace=True)
-# Here the Grouper is using our newly set index to group by Month ('M')
+
+# Aggregating sales by month
 sales_by_month = df.filter(items=['Sales']).groupby(pd.Grouper(freq='M')).sum()
-
 st.dataframe(sales_by_month)
-
-# Here the grouped months are the index and automatically used for the x axis
 st.line_chart(sales_by_month, y="Sales")
 
+st.write("## Your additions")
 
+# (1) Dropdown for Category Selection
+categories = df["Category"].unique().tolist()
+selected_category = st.selectbox("Select a Category:", categories)
 
-category = st.selectbox("Select a Category", df['Category'].unique())
-sub_categories = df[df['Category'] == category]['Sub_Category'].unique()
-selected_sub_categories = st.multiselect(
-    "Select Sub-Categories",
-    sub_categories,
-    sub_categories
-)
+# (2) Multi-select for Sub-Category in the selected Category
+filtered_df = df[df["Category"] == selected_category]
+sub_categories = filtered_df["Sub_Category"].unique().tolist()
+selected_sub_categories = st.multiselect("Select Sub-Categories:", sub_categories, default=sub_categories[:2])
 
-st.write("### (3) show a line chart of sales for the selected items in (2)")
+# Filter data based on selected sub-categories
+filtered_data = filtered_df[filtered_df["Sub_Category"].isin(selected_sub_categories)]
 
+# (3) Line chart of sales for selected items
+sales_by_month_filtered = filtered_data.groupby(pd.Grouper(freq='M')).sum()
+st.line_chart(sales_by_month_filtered, y="Sales")
 
+# (4) Show three metrics: Total Sales, Total Profit, Profit Margin
+if not filtered_data.empty:
+    total_sales = filtered_data["Sales"].sum()
+    total_profit = filtered_data["Profit"].sum()
+    profit_margin = (total_profit / total_sales) * 100 if total_sales != 0 else 0
 
-st.write("### (4) show three metrics (https://docs.streamlit.io/library/api-reference/data/st.metric) for the selected items in (2): total sales, total profit, and overall profit margin (%)")
+    # (5) Delta option: Difference in overall profit margin
+    overall_profit_margin = (df["Profit"].sum() / df["Sales"].sum()) * 100
+    profit_margin_delta = profit_margin - overall_profit_margin
 
-import streamlit as st
-
-col1, col2, col3 = st.columns(3)
-col1.metric("Total Sales", "2297200.8")
-col2.metric("Total Profit", "$ 286397.02")
-col3.metric("Overall Profit Margin", "12.47")
-
-st.write("### (5) use the delta option in the overall profit margin metric to show the difference between the overall average profit margin (all products across all categories)")
-
-overall_profit_margin = (df["Profit"].sum() / df["Sales"].sum()) * 100
-profit_margin_delta = profit_margin - overall_profit_margin
-
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.metric("Total Sales", f"${total_sales:,.2f}")
-with col2:
-    st.metric("Total Profit", f"${total_profit:,.2f}")
-with col3:
-    st.metric("Profit Margin", f"{profit_margin:.2f}%", delta=f"{profit_margin_delta:.2f}%")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Total Sales", f"${total_sales:,.2f}")
+    with col2:
+        st.metric("Total Profit", f"${total_profit:,.2f}")
+    with col3:
+        st.metric("Profit Margin", f"{profit_margin:.2f}%", delta=f"{profit_margin_delta:.2f}%")
