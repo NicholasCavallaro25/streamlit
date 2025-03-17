@@ -41,18 +41,67 @@ selected_sub_categories = st.multiselect(
 
 st.write("### (3) show a line chart of sales for the selected items in (2)")
 
-if selected_sub_categories:
-    filtered_df = df[(df['Category'] == category) & (df['Sub_Category'].isin(selected_sub_categories))]
+import streamlit as st
+import pandas as pd
 
-    # Aggregate sales by date
-    sales_trend = filtered_df.groupby('Order Date')['Sales'].sum().reset_index()
+# Load the dataset
+file_path = "/mnt/data/Superstore_Sales_utf8.csv"
+df = pd.read_csv(file_path)
 
-    # Show the filtered data
-    st.write("### Filtered Data", filtered_df)
+# Clean column names (strip spaces)
+df.columns = df.columns.str.strip()
 
-    # Show the line chart
-    st.write("### Sales Trend Over Time")
-    st.line_chart(sales_trend.set_index('Order Date'))
+# Ensure necessary columns exist
+required_columns = {'Category', 'Sub_Category', 'Order Date', 'Sales'}
+if required_columns.issubset(df.columns):
+    # Convert 'Order Date' to datetime safely
+    try:
+        df['Order Date'] = pd.to_datetime(df['Order Date'], errors='coerce')
+    except Exception as e:
+        st.error(f"Error converting 'Order Date' to datetime: {e}")
+
+    # Select a Category
+    category = st.selectbox("Select a Category", df['Category'].unique())
+
+    # Filter Sub_Categories based on selected Category
+    sub_categories = df[df['Category'] == category]['Sub_Category'].unique()
+
+    # Multi-select for Sub_Category (default selects all subcategories)
+    selected_sub_categories = st.multiselect(
+        "Select Sub-Categories",
+        sub_categories,
+        sub_categories  # Pre-select all subcategories by default
+    )
+
+    # Display selected options
+    st.write("You selected:", selected_sub_categories)
+
+    # Filter data based on selections
+    if selected_sub_categories:
+        filtered_df = df[(df['Category'] == category) & (df['Sub_Category'].isin(selected_sub_categories))]
+
+        # Check if 'Order Date' has valid values after conversion
+        if filtered_df['Order Date'].isna().all():
+            st.error("All 'Order Date' values are invalid. Please check the dataset format.")
+        else:
+            # Drop rows with NaT values in 'Order Date'
+            filtered_df = filtered_df.dropna(subset=['Order Date'])
+
+            # Aggregate sales by date
+            sales_trend = filtered_df.groupby('Order Date')['Sales'].sum().reset_index()
+
+            # Show the filtered data
+            st.write("### Filtered Data", filtered_df)
+
+            # Show the line chart
+            st.write("### Sales Trend Over Time")
+            st.line_chart(sales_trend.set_index('Order Date'))
+
+    else:
+        st.write("### Select Sub-Categories to view data and chart")
+else:
+    st.error(f"Dataset is missing required columns: {required_columns - set(df.columns)}")
+
 
 st.write("### (4) show three metrics (https://docs.streamlit.io/library/api-reference/data/st.metric) for the selected items in (2): total sales, total profit, and overall profit margin (%)")
 st.write("### (5) use the delta option in the overall profit margin metric to show the difference between the overall average profit margin (all products across all categories)")
