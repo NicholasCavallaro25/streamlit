@@ -40,6 +40,7 @@ selected_sub_categories = st.multiselect(
 )
 
 st.write("### (3) show a line chart of sales for the selected items in (2)")
+st.write("### (4) show three metrics (https://docs.streamlit.io/library/api-reference/data/st.metric) for the selected items in (2): total sales, total profit, and overall profit margin (%)")
 
 import streamlit as st
 import pandas as pd
@@ -52,7 +53,7 @@ df = pd.read_csv(file_path)
 df.columns = df.columns.str.strip()
 
 # Ensure necessary columns exist
-required_columns = {'Category', 'Sub_Category', 'Order Date', 'Sales'}
+required_columns = {'Category', 'Sub_Category', 'Order Date', 'Sales', 'Profit'}
 if required_columns.issubset(df.columns):
     # Convert 'Order Date' to datetime safely
     try:
@@ -97,11 +98,21 @@ if required_columns.issubset(df.columns):
             st.write("### Sales Trend Over Time")
             st.line_chart(sales_trend.set_index('Order Date'))
 
+            # ---- METRICS ----
+            total_sales = filtered_df['Sales'].sum()
+            total_profit = filtered_df['Profit'].sum()
+            profit_margin = (total_profit / total_sales * 100) if total_sales != 0 else 0
+
+            # Display Metrics
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Total Sales ($)", f"${total_sales:,.2f}")
+            col2.metric("Total Profit ($)", f"${total_profit:,.2f}")
+            col3.metric("Profit Margin (%)", f"{profit_margin:.2f}%")
+
     else:
         st.write("### Select Sub-Categories to view data and chart")
 else:
     st.error(f"Dataset is missing required columns: {required_columns - set(df.columns)}")
 
 
-st.write("### (4) show three metrics (https://docs.streamlit.io/library/api-reference/data/st.metric) for the selected items in (2): total sales, total profit, and overall profit margin (%)")
 st.write("### (5) use the delta option in the overall profit margin metric to show the difference between the overall average profit margin (all products across all categories)")
